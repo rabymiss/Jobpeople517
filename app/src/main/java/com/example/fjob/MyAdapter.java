@@ -4,14 +4,17 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.fjob.Api.ApiRetrofit;
 import com.example.fjob.Entity.job.JobMessage;
 import com.example.fjob.Entity.job.JobResultEntity;
 import com.example.fjob.ui.login.findjob.JobMessageAllActivity;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +32,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         //加载卡片
 
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        final View itemView = layoutInflater.from(parent.getContext()).inflate(R.layout.cell_card_job_show, parent, false);
+        final View itemView = layoutInflater.from(parent.getContext()).inflate(R.layout.cell_card_job_show1, parent, false);
 
 //卡片点击事件
         final MyViewHolder holder = new MyViewHolder(itemView);
@@ -37,10 +40,10 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             @Override
             public void onClick(View view) {
 
-              String  allMessage= holder.textViewCpn.getText().toString();
+              String  allMessage= holder.img.getText().toString();
                // Toast.makeText(itemView.getContext(),allMessage,Toast.LENGTH_SHORT).show();
                Intent intent = new Intent(view.getContext(), JobMessageAllActivity.class);
-                intent.putExtra("Cpn",allMessage);
+                intent.putExtra("uuid",allMessage);
 
               holder.itemView.getContext().startActivity(intent);
             }
@@ -59,6 +62,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         holder.textViewConditionOne.setText(jobMessage.getJobConditionOne());
         holder.textViewConditionTwo.setText(jobMessage.getJobConditionTwo());
         holder.textViewJobPay.setText(jobMessage.getJobPay());
+        holder.img.setText(jobMessage.getUuid());
+        Picasso.get().load(ApiRetrofit.URL+jobMessage.getImage()).into(holder.imageView);
 
 
 
@@ -75,7 +80,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
 
     class  MyViewHolder extends RecyclerView.ViewHolder {
         TextView textViewCpn,textViewJob,textViewConditionOne,
-                textViewConditionTwo,textViewDate,textViewJobPay;
+                textViewConditionTwo,textViewDate,textViewJobPay
+                ,img;
+        ImageView imageView;
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
             textViewCpn=itemView.findViewById(R.id.textView_cpn_name_add);
@@ -83,6 +90,10 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             textViewConditionOne=itemView.findViewById(R.id.textView_job_condition_one_add);
             textViewConditionTwo=itemView.findViewById(R.id.textView_Job_condition_two_add);
             textViewJobPay=itemView.findViewById(R.id.textView_job_pay_add);
+
+            textViewDate=itemView.findViewById(R.id.text_uuid);
+            img=itemView.findViewById(R.id.text_celljob_ima);
+            imageView=itemView.findViewById(R.id.imageView_job_show);
         }
     }
 

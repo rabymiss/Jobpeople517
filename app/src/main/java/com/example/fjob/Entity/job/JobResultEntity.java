@@ -1,5 +1,7 @@
 package com.example.fjob.Entity.job;
 
+import androidx.room.ColumnInfo;
+
 import java.util.List;
 
 public class JobResultEntity {
@@ -51,6 +53,35 @@ public class JobResultEntity {
         private String jobConditionTwo;
         private String cpnName;
         private String jobPay;
+        private  String uuid;
+
+        public String getUuid() {
+            return uuid;
+        }
+
+        public void setUuid(String uuid) {
+            this.uuid = uuid;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getImage() {
+            return image;
+        }
+
+        public void setImage(String image) {
+            this.image = image;
+        }
+
+        private String username;
+
+        private String image;
 
         public String getJobName() {
             return jobName;

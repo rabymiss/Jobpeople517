@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey;
 @Entity
 public class JobMessage {
     @PrimaryKey(autoGenerate = true)
-   private int id;
+    private int id;
     @ColumnInfo(name = "JobName")
     private String  jobName;
     @ColumnInfo(name = "条件1")
@@ -18,14 +18,40 @@ public class JobMessage {
     private String cpnName;
     @ColumnInfo(name = "工资")
     private String jobPay;
+    @ColumnInfo
+    private  String uuid;
+    @ColumnInfo
+    private String username;
+    @ColumnInfo
+    private String image;
 
 
-    public JobMessage(String jobConditionOne, String jobConditionTwo,String jobName,String jobPay,String cpnName) {
-    this.cpnName=cpnName;
-    this.jobConditionOne=jobConditionOne;
-    this.jobConditionTwo=jobConditionTwo;
-    this.jobName=jobName;
-    this.jobPay=jobPay;
+    public JobMessage(String jobConditionOne, String jobConditionTwo,String jobName,String jobPay,String cpnName,String uuid,String username,String image) {
+        this.cpnName=cpnName;
+        this.jobConditionOne=jobConditionOne;
+        this.jobConditionTwo=jobConditionTwo;
+        this.jobName=jobName;
+        this.jobPay=jobPay;
+        this.uuid=uuid;
+        this.username=username;
+        this.image=image;
+
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public int getId() {
@@ -74,5 +100,28 @@ public class JobMessage {
 
     public void setJobPay(String jobPay) {
         this.jobPay = jobPay;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    @Override
+    public String toString() {
+        return "JobMessage{" +
+                "id=" + id +
+                ", jobName='" + jobName + '\'' +
+                ", jobConditionOne='" + jobConditionOne + '\'' +
+                ", jobConditionTwo='" + jobConditionTwo + '\'' +
+                ", cpnName='" + cpnName + '\'' +
+                ", jobPay='" + jobPay + '\'' +
+                ", uuid='" + uuid + '\'' +
+                ", username='" + username + '\'' +
+                ", image='" + image + '\'' +
+                '}';
     }
 }

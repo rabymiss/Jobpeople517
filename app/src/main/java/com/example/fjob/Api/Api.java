@@ -1,5 +1,6 @@
 package com.example.fjob.Api;
 
+import com.example.fjob.Api.entity.JobAll;
 import com.example.fjob.Entity.job.JobMessage;
 import com.example.fjob.Entity.job.JobMessageAll;
 import com.example.fjob.Entity.job.JobResultEntity;
@@ -36,4 +37,8 @@ public interface Api {
 
     @POST("user/login/for")
     Call<RegisterEntity> LoginResultfor(@Body RequestBody requestBody);
+    //寻找工作详情
+    @POST("find/message/byid")
+    Call<JobAll> adapterjobbyid(@Body RequestBody requestBody);
+
 }

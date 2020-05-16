@@ -1,12 +1,9 @@
 package com.example.fjob;
 
-import android.content.Intent;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -24,6 +21,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.fjob.Api.Api;
 import com.example.fjob.Entity.job.JobMessage;
@@ -31,7 +29,7 @@ import com.example.fjob.Entity.job.JobResultEntity;
 import com.example.fjob.Entity.job.ReturnJobMessageAll;
 import com.example.fjob.adapter.JobAdapter;
 import com.example.fjob.common.Common;
-import com.example.fjob.ui.login.AddJobActivity;
+
 import com.example.fjob.views.PagerItem;
 import com.example.fjob.views.SobLooperPager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -57,7 +55,7 @@ public class HomeFragment extends Fragment {
     private List<JobMessage>allJobs;
     private LiveData<List<JobMessage>> fileJobs;
     private DividerItemDecoration dividerItemDecoration;
-    private Button buttonRefresh;
+    private SwipeRefreshLayout refresh;
     private static final String TAG = "ButtomActivity";
     private List<ReturnJobMessageAll.DataBean> data=new ArrayList<>();
     private List<JobResultEntity.DataBean> data2=new ArrayList<>();
@@ -88,34 +86,90 @@ public class HomeFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireActivity()));
         myAdapter=new MyAdapter();
         jobAdapter =new JobAdapter();
+        refresh=requireActivity().findViewById(R.id.refresh_home);
+
 //        广告
         initData();
         initView();
         initEven();
         //................
 
+refresh();
 
 
-//
-//        //分割线
-//        dividerItemDecoration=new DividerItemDecoration(requireActivity(),DividerItemDecoration.VERTICAL);
-//        fileJobs=jobViewModel.getAllJobsLive();//+
-//        fileJobs.observe(requireActivity(), new Observer<List<JobMessage>>() {
-//            @Override
-//            public void onChanged(List<JobMessage> jobMessages) {
-//
-//                recyclerView.addItemDecoration(dividerItemDecoration);
-//
-//                // int temp =myAdapter.getItemCount();
-//                myAdapter.setAllJobs(jobMessages);
-//                myAdapter.notifyDataSetChanged();
-//
-//            }
-//        });
-//        recyclerView.setAdapter(myAdapter);//????
+        //分割线
+        dividerItemDecoration=new DividerItemDecoration(requireActivity(),DividerItemDecoration.VERTICAL);
+        fileJobs=jobViewModel.getAllJobsLive();//+
+        fileJobs.observe(requireActivity(), new Observer<List<JobMessage>>() {
+            @Override
+            public void onChanged(List<JobMessage> jobMessages) {
+
+                recyclerView.addItemDecoration(dividerItemDecoration);
+
+                // int temp =myAdapter.getItemCount();
+                myAdapter.setAllJobs(jobMessages);
+                myAdapter.notifyDataSetChanged();
+
+            }
+        });
+        recyclerView.setAdapter(myAdapter);//????
 
 
 
+
+    }
+//刷新
+    private void refresh() {
+        refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Call<JobResultEntity> task= Common.apicommont.getJson();
+            task.enqueue(new Callback<JobResultEntity>() {
+                @Override
+                public void onResponse(Call<JobResultEntity> call, Response<JobResultEntity> response) {
+
+                    if (response.code()== HttpsURLConnection.HTTP_OK){
+                        Log.d(TAG,"成功"+response.body());
+                        JobResultEntity jobResultEntity=response.body();
+
+                        data2.addAll(jobResultEntity.getData());
+
+
+                        for (  JobResultEntity.DataBean dataBean:data2  ){
+
+                            JobMessage jobMessage=new JobMessage(dataBean.getJobConditionOne()
+                                    ,dataBean.getJobConditionTwo()
+                                    ,dataBean.getJobName()
+                                    ,dataBean.getJobPay()
+                                    ,dataBean.getCpnName(),dataBean.getUuid(),dataBean.getUsername(),dataBean.getImage());
+                            jobViewModel.insertJobs(jobMessage);
+                            myAdapter.notifyDataSetChanged();
+                        }
+     refresh.setRefreshing(false);
+
+
+                    }
+
+                }
+
+                @Override
+                public void onFailure(Call<JobResultEntity> call, Throwable t) {
+                    Toast.makeText(requireActivity(),t.toString(),Toast.LENGTH_SHORT).show();
+                }
+            });
+
+
+
+
+
+
+
+
+
+
+
+            }
+        });
 
     }
 
