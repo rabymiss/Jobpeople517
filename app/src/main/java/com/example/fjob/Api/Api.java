@@ -29,4 +29,11 @@ public interface Api {
     //上传所有信息
     @POST("add/job/message")
     Call<JobMessageAll>addMsgsAll(@Body RequestBody requestBody);
+    //忘记密码
+
+    @POST("user/login/forget")
+    Call<RegisterEntity> loginphfor(@Body RequestBody requestBody);
+
+    @POST("user/login/for")
+    Call<RegisterEntity> LoginResultfor(@Body RequestBody requestBody);
 }

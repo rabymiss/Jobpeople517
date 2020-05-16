@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -29,7 +30,10 @@ import com.example.fjob.Entity.job.JobMessage;
 import com.example.fjob.Entity.job.JobResultEntity;
 import com.example.fjob.Entity.job.ReturnJobMessageAll;
 import com.example.fjob.adapter.JobAdapter;
+import com.example.fjob.common.Common;
 import com.example.fjob.ui.login.AddJobActivity;
+import com.example.fjob.views.PagerItem;
+import com.example.fjob.views.SobLooperPager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -57,6 +61,9 @@ public class HomeFragment extends Fragment {
     private static final String TAG = "ButtomActivity";
     private List<ReturnJobMessageAll.DataBean> data=new ArrayList<>();
     private List<JobResultEntity.DataBean> data2=new ArrayList<>();
+    //广告
+    private SobLooperPager mLooperPager;
+    private List<PagerItem> mData = new ArrayList<>();
     public  HomeFragment(){
 
 
@@ -68,7 +75,7 @@ public class HomeFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        return inflater.inflate(R.layout.fragment_job, container, false);
+        return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
 
@@ -81,168 +88,185 @@ public class HomeFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireActivity()));
         myAdapter=new MyAdapter();
         jobAdapter =new JobAdapter();
+//        广告
+        initData();
+        initView();
+        initEven();
+        //................
 
 
 
+//
+//        //分割线
+//        dividerItemDecoration=new DividerItemDecoration(requireActivity(),DividerItemDecoration.VERTICAL);
+//        fileJobs=jobViewModel.getAllJobsLive();//+
+//        fileJobs.observe(requireActivity(), new Observer<List<JobMessage>>() {
+//            @Override
+//            public void onChanged(List<JobMessage> jobMessages) {
+//
+//                recyclerView.addItemDecoration(dividerItemDecoration);
+//
+//                // int temp =myAdapter.getItemCount();
+//                myAdapter.setAllJobs(jobMessages);
+//                myAdapter.notifyDataSetChanged();
+//
+//            }
+//        });
+//        recyclerView.setAdapter(myAdapter);//????
 
-
-
-        //分割线
-        dividerItemDecoration=new DividerItemDecoration(requireActivity(),DividerItemDecoration.VERTICAL);
-        fileJobs=jobViewModel.getAllJobsLive();//+
-        fileJobs.observe(requireActivity(), new Observer<List<JobMessage>>() {
-            @Override
-            public void onChanged(List<JobMessage> jobMessages) {
-
-                recyclerView.addItemDecoration(dividerItemDecoration);
-
-                // int temp =myAdapter.getItemCount();
-                myAdapter.setAllJobs(jobMessages);
-                myAdapter.notifyDataSetChanged();
-
-            }
-        });
-        recyclerView.setAdapter(myAdapter);//????
-
-//滑动删除
-        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.START|ItemTouchHelper.END) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                return false;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-            //    JobMessage delete=allJobs.get(         viewHolder.getAdapterPosition()   );
-              //  Log.d("s","消息..................."+delete.toString());
-
-                Toast.makeText(requireActivity(),"啥也没发生",Toast.LENGTH_SHORT).show();
-//            JobMessage d=allJobs.get(viewHolder.getAdapterPosition());
-//           jobViewModel.deleteJobs(d);
-
-//                Snackbar.make(requireActivity().findViewById(R.id.nav_host_fragment),"删除了一个词汇",Snackbar.LENGTH_SHORT)
-//                     .setAction("撤销", new View.OnClickListener() {
-//                          @Override
-//                          public void onClick(View view) {
-////                               undoaction=true;
-////                              jobViewModel.insertJobs();
-//                           }
-//                        }).show();
-            }
-        }).attachToRecyclerView(recyclerView);
 
 
 
     }
 
+    private void initEven() {
 
-
-    //...............................................搜索..............
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.search_menu,menu);
-        SearchView searchView = (SearchView) menu.findItem(R.id.app_bar_search).getActionView();
-        searchView.setMaxWidth(500);
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                String pattern = newText.trim();
-                fileJobs.removeObservers(requireActivity());
-                fileJobs = jobViewModel.findAllJobsLive(pattern);
-                fileJobs.observe(requireActivity(), new Observer<List<JobMessage>>() {
-                    @Override
-                    public void onChanged(List<JobMessage> msg) {
-                        int temp = myAdapter.getItemCount();
-                        myAdapter.setAllJobs(msg);
-                        if (temp!=msg.size()) {
-
-                            myAdapter.notifyDataSetChanged();
-                        }
-                    }
-                });
-                return true;
-            }
-        });
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-
-            case R.id.search_menu_job:
-                Intent intent=new Intent(requireActivity(), AddJobActivity.class);
-                startActivity(intent);
-                break;
-
-            case R.id.menu_bar_refresh_job:
-
-                jobViewModel.deleteAllJobs();
-                myAdapter.notifyDataSetChanged();
-//加载招聘信息
-
-            Retrofit retrofit  =new Retrofit.Builder()
-                    .baseUrl("http:/172.20.10.3:8080")
-                    .addConverterFactory(GsonConverterFactory.create()).build();
-            Api api  =  retrofit.create(Api.class);
-            Call<JobResultEntity> task=api.getJson();
-            task.enqueue(new Callback<JobResultEntity>() {
+        if(mLooperPager != null) {
+            mLooperPager.setOnItemClickListener(new SobLooperPager.OnItemClickListener() {
                 @Override
-                public void onResponse(Call<JobResultEntity> call, Response<JobResultEntity> response) {
-                    //  Log.d(TAG,"Json-->"+response.code());
-
-
-                    if (response.code()== HttpsURLConnection.HTTP_OK){
-                        Log.d(TAG,"成功"+response.body());
-                        JobResultEntity jobResultEntity=response.body();
-
-                        data2.addAll(jobResultEntity.getData());
-
-
-                        for (  JobResultEntity.DataBean dataBean:data2  ){
-
-                            JobMessage jobMessage=new JobMessage(dataBean.getJobConditionOne()
-                                    ,dataBean.getJobConditionTwo()
-                                    ,dataBean.getJobName()
-                                    ,dataBean.getJobPay()
-                                    ,dataBean.getCpnName());
-                            Log.d(TAG,"data------------------------------"+jobMessage.getCpnName());
-
-                            jobViewModel.insertJobs(jobMessage);
-                            myAdapter.notifyDataSetChanged();
-                        }
-
-                        Log.d(TAG,"data------------------------------"+data);
-
-                    }
-
-                }
-
-                @Override
-                public void onFailure(Call<JobResultEntity> call, Throwable t) {
-                    Log.d(TAG,"失败-->"+t.toString());
-                    Toast.makeText(requireActivity(),t.toString(),Toast.LENGTH_SHORT).show();
+                public void onItemClick(int position) {
+                    Toast.makeText(getContext(),"点击了第" + (position + 1) + "个item", Toast.LENGTH_SHORT).show();
+                    //todo:根据交互业务去实现具体逻辑
                 }
             });
-
-
-
-                //..................
-
-                break;
-                default:
         }
-      return super.onOptionsItemSelected(item);
+
     }
+//
+    private void initView() {
+        mLooperPager = requireActivity().findViewById(R.id.sob_looper_pager);
+        mLooperPager.setData(mInnerAdapter,new SobLooperPager.BindTitleListener() {
+            @Override
+            public String getTitle(int position) {
+                return mData.get(position).getTitle();
+            }
+        });
+    }
+    private SobLooperPager.InnerAdapter mInnerAdapter = new SobLooperPager.InnerAdapter() {
+        @Override
+        protected int getDataSize() {
+            return mData.size();
+        }
+
+        @Override
+        protected View getSubView(ViewGroup container, int position) {
+            ImageView iv = new ImageView(container.getContext());
+            iv.setImageResource(mData.get(position).getPicResId());
+            iv.setScaleType(ImageView.ScaleType.FIT_XY);
+            return iv;
+        }
+    };
+    private void initData() {
+        mData.add(new PagerItem("第一个图片",R.mipmap.pic0));
+        mData.add(new PagerItem("第2个图片",R.mipmap.pic1));
+        mData.add(new PagerItem("第三个图片",R.mipmap.pic2));
+        mData.add(new PagerItem("第4个图片",R.mipmap.pic3));
+    }
+//....................................................
+
+//    //...............................................搜索..............
+//    @Override
+//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+//        super.onCreateOptionsMenu(menu, inflater);
+//        inflater.inflate(R.menu.search_menu,menu);
+//        SearchView searchView = (SearchView) menu.findItem(R.id.app_bar_search).getActionView();
+//        searchView.setMaxWidth(500);
+//        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+//            @Override
+//            public boolean onQueryTextSubmit(String query) {
+//                return false;
+//            }
+//
+//            @Override
+//            public boolean onQueryTextChange(String newText) {
+//                String pattern = newText.trim();
+//                fileJobs.removeObservers(requireActivity());
+//                fileJobs = jobViewModel.findAllJobsLive(pattern);
+//                fileJobs.observe(requireActivity(), new Observer<List<JobMessage>>() {
+//                    @Override
+//                    public void onChanged(List<JobMessage> msg) {
+//                        int temp = myAdapter.getItemCount();
+//                        myAdapter.setAllJobs(msg);
+//                        if (temp!=msg.size()) {
+//
+//                            myAdapter.notifyDataSetChanged();
+//                        }
+//                    }
+//                });
+//                return true;
+//            }
+//        });
+//    }
+
+//    @Override
+//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+//        switch (item.getItemId()) {
+//
+//            case R.id.search_menu_job:
+//                Intent intent=new Intent(requireActivity(), AddJobActivity.class);
+//                startActivity(intent);
+//                break;
+//
+//            case R.id.menu_bar_refresh_job:
+
+//                jobViewModel.deleteAllJobs();
+//                myAdapter.notifyDataSetChanged();
+////加载招聘信息
+//
+//
+//            Call<JobResultEntity> task= Common.apicommont.getJson();
+//            task.enqueue(new Callback<JobResultEntity>() {
+//                @Override
+//                public void onResponse(Call<JobResultEntity> call, Response<JobResultEntity> response) {
+//                    //  Log.d(TAG,"Json-->"+response.code());
+//
+//
+//                    if (response.code()== HttpsURLConnection.HTTP_OK){
+//                        Log.d(TAG,"成功"+response.body());
+//                        JobResultEntity jobResultEntity=response.body();
+//
+//                        data2.addAll(jobResultEntity.getData());
+//
+//
+//                        for (  JobResultEntity.DataBean dataBean:data2  ){
+//
+//                            JobMessage jobMessage=new JobMessage(dataBean.getJobConditionOne()
+//                                    ,dataBean.getJobConditionTwo()
+//                                    ,dataBean.getJobName()
+//                                    ,dataBean.getJobPay()
+//                                    ,dataBean.getCpnName());
+//                            Log.d(TAG,"data------------------------------"+jobMessage.getCpnName());
+//
+//                            jobViewModel.insertJobs(jobMessage);
+//                            myAdapter.notifyDataSetChanged();
+//                        }
+//
+//                        Log.d(TAG,"data------------------------------"+data);
+//
+//                    }
+//
+//                }
+//
+//                @Override
+//                public void onFailure(Call<JobResultEntity> call, Throwable t) {
+//                    Log.d(TAG,"失败-->"+t.toString());
+//                    Toast.makeText(requireActivity(),t.toString(),Toast.LENGTH_SHORT).show();
+//                }
+//            });
+//
+//
+//
+//                //..................
+//
+//                break;
+//                default:
+
+//      return super.onOptionsItemSelected(item);
+//    }
 
 //..................................................................
 
-//menu 的功能
+
 
 
 

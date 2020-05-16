@@ -71,5 +71,7 @@
     <string name="res_if_mary">婚姻状态</string>
     <string name="res_politics">政治面貌</string>
     <string name="res_bnt_confirm">发送录取通知</string>
+    <string name="forget_password" >忘记密码</string>
+    <string name="msg_code" >获取验证码</string>
 
 </resources>

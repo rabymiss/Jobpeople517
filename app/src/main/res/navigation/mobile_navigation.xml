@@ -17,7 +17,7 @@
 
     <fragment
         android:id="@+id/navigation_dashboard"
-        android:name="com.example.fjob.Fragmen.ui.DashboardFragment"
+        android:name="com.example.fjob.Fragmen.ui.MEssageFragment"
         android:label="@string/message"
         tools:layout="@layout/fragment_dashboard" >
         <action

@@ -50,7 +50,7 @@ public class ButtomActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(navView, navController);
      //  jobViewModel=ViewModelProviders.of(this).get(JobViewModel.class);
           jobViewModel=ViewModelProviders.of(this).get(JobViewModel.class);
-        recyclerView=findViewById(R.id.recycler_view_job_show2);
+
 
 
     }
@@ -58,31 +58,7 @@ public class ButtomActivity extends AppCompatActivity {
 
 
 
-//
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//      //  return super.onCreateOptionsMenu(menu);
-//
-//        MenuInflater inflater=getMenuInflater();
-//        inflater.inflate(R.menu.search_menu,menu);
-//     return true;
-//    }
 
-//    @Override
-//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-//
-//        switch (item.getItemId()){
-//
-//            case R.id.job:
-//                Intent intent =new Intent(this, AddJobActivity.class);
-//             startActivity(intent);
-//             return true;
-//
-//             default:
-//
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
 
 
 }

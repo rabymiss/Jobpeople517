@@ -37,7 +37,7 @@ import java.util.Collection;
 import java.util.List;
 
 
-public class DashboardFragment extends Fragment {
+public class MEssageFragment extends Fragment {
 private ChatAdapter chatAdapter;
 private RecyclerView recyclerView;
 private Socket socket;
@@ -45,7 +45,7 @@ private DataInputStream in;
 private ChatAdapter.MyViewHolder myViewHolder;
 private ResumeViewModel resumeViewModel;
   private   List<ChatEntity> allmsg=new ArrayList<>();
-    public  DashboardFragment(){
+    public MEssageFragment(){
 
 
 
