@@ -1,11 +1,22 @@
 package com.example.fjob.Fragmen.ui.activity;
 
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,30 +27,40 @@ import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 
+import com.bumptech.glide.Glide;
 import com.example.fjob.R;
 import com.example.fjob.UserViewModel;
 import com.example.fjob.common.Common;
 import com.example.fjob.data.model.LoginUser;
+import com.example.fjob.img.BaseActivity;
+
 import com.example.fjob.tool.Validator;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class PersonMsgActivity extends AppCompatActivity {
+public class PersonMsgActivity extends BaseActivity {
     private static final String TAG ="PersonMessageActivity" ;
     private EditText edName, edBurth, edemail, edphone, edaddress, edwork;
     private EditText edshowyouself;
@@ -63,16 +84,32 @@ public class PersonMsgActivity extends AppCompatActivity {
 //LiveData<List<ImguEntity>>liveDataimg;
 //    private String urlint;
 
-//    List<CpnMessage>listcpn;
+//    List<CpnMessage>listcpn;..................................................................
+
 //    popuwindow.....
 private Context mContext;
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA };
+    private static String[] PERMISSIONS_STORAGES = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
+
+
+
+  private  ImageView imageView;
+
+    private File tempFile = null;
+    private Uri uri01;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cpn_msg);
+        verifyStoragePermissions(this);
 //        imgViewmodel=ViewModelProviders.of(this).get(ImgViewmodel.class);
         userViewmodel= ViewModelProviders.of(this).get(UserViewModel.class);
 //        cpnViewModel=ViewModelProviders.of(this).get(CpnViewModel.class);
+        imageView=findViewById(R.id.imageView_pco);
         inoitView();
         initDo();
         livedata();
@@ -334,21 +371,126 @@ private Context mContext;
         btn_xixi.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(mContext, "你点击了嘻嘻~", Toast.LENGTH_SHORT).show();
+                //检查是否已经获得相机的权限
+                if(verifyPermissions(PersonMsgActivity.this,PERMISSIONS_STORAGE[2]) == 0){
+
+                    ActivityCompat.requestPermissions(PersonMsgActivity.this, PERMISSIONS_STORAGE, 3);
+                }else{
+                    //已经有权限
+                    toCamera();  //打开相机
+                }
+
+                popWindow.dismiss();
+
+
+
             }
         });
         btn_hehe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(mContext, "你点击了呵呵~", Toast.LENGTH_SHORT).show();
+                toPicture();
                 popWindow.dismiss();
             }
         });
     }
     public void seletephoto(View view){
-
+//        toCamera();
         initPopWindow(view);
 
+    }
+    public static void verifyStoragePermissions(Activity activity) {
+        // Check if we have write permission
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(activity, PERMISSIONS_STORAGES, REQUEST_EXTERNAL_STORAGE);
+        }
+
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //判断返回码不等于0
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode != RESULT_CANCELED) {    //RESULT_CANCELED = 0(也可以直接写“if (requestCode != 0 )”)
+            //读取返回码
+            switch (requestCode) {
+                case 100:   //相册返回的数据（相册的返回码）
+
+                    uri01=data.getData();
+
+
+
+                    String[] arr={MediaStore.Images.Media.DATA};
+                    Cursor cursor=managedQuery(uri01,arr,null,null,null);
+                    int img_index=cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+
+                    cursor.moveToFirst();
+                    String pa=cursor.getString(img_index);
+                    String a=arr[0];
+                    String x=cursor.getString(cursor.getColumnIndex(a));
+                    File tempFile =new File(x.trim());
+                    String fileName=tempFile.getName();
+
+                    list.add(fileName);
+
+
+                    File file=new File(pa);
+
+
+                    ContentResolver contentResolver=this.getContentResolver();
+                    try {
+                        Bitmap bitmap= BitmapFactory.decodeStream(contentResolver.openInputStream(uri01));
+
+
+
+                        Glide.with(this).load(bitmap).into(imageView);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+
+
+//.......................................
+
+//......................
+
+
+
+
+                    break;
+                case 101:  //相机返回的数据（相机的返回码）
+
+                    try {
+                        tempFile = new File(Environment.getExternalStorageDirectory(), "fileImg.jpg");  //相机取图片数据文件
+                        Uri uri02 = Uri.fromFile(tempFile);   //图片文件
+
+                        Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri02));
+                        imageView.setImageBitmap(bitmap);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+            }
+        }
+    }
+    //跳转相册
+    private void toPicture() {
+        Intent intent = new Intent(Intent.ACTION_PICK);  //跳转到 ACTION_IMAGE_CAPTURE
+        intent.setType("image/*");
+        startActivityForResult(intent,100);
+
+    }
+
+    //跳转相机
+    private void toCamera() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);  //跳转到 ACTION_IMAGE_CAPTURE
+        //判断内存卡是否可用，可用的话就进行存储
+        //putExtra：取值，Uri.fromFile：传一个拍照所得到的文件，fileImg.jpg：文件名
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(Environment.getExternalStorageDirectory(), "fileImg.jpg")));
+        startActivityForResult(intent, 101); // 101: 相机的返回码参数（随便一个值就行，只要不冲突就好）
     }
 }
 
