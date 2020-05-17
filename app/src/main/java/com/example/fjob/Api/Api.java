@@ -6,12 +6,20 @@ import com.example.fjob.Entity.job.JobMessageAll;
 import com.example.fjob.Entity.job.JobResultEntity;
 import com.example.fjob.Entity.RegisterEntity;
 import com.example.fjob.Entity.job.ReturnJobMessageAll;
+import com.example.fjob.Entity.usermessage.CpnMessage;
 
+import java.util.List;
+import java.util.Map;
+
+import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
+import retrofit2.http.PartMap;
 
 public interface Api {
     @POST("user/register")
@@ -42,4 +50,13 @@ public interface Api {
     Call<JobAll> adapterjobbyid(@Body RequestBody requestBody);
     @POST("save/resume")
     Call<JobAll> sqveresume(@Body RequestBody requestBody);
+//上传图片
+    @Multipart
+    @POST("updown12")
+    Call<RegisterEntity>load(@Part MultipartBody.Part part, @PartMap Map<String,String> params);
+    //上传公司所有信息
+    @POST("add/cpn")
+    Call<CpnMessage>addcpn(@Body RequestBody requestBody);
+    @POST("find/cpn")
+    Call<List<CpnMessage>>findcpn(@Body RequestBody requestBody);
 }

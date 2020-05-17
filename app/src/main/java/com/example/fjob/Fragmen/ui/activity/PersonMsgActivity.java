@@ -35,12 +35,16 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 
 import com.bumptech.glide.Glide;
+import com.example.fjob.Api.ApiRetrofit;
+import com.example.fjob.Entity.RegisterEntity;
+import com.example.fjob.Entity.usermessage.CpnMessage;
 import com.example.fjob.R;
 import com.example.fjob.UserViewModel;
 import com.example.fjob.common.Common;
 import com.example.fjob.data.model.LoginUser;
 import com.example.fjob.img.BaseActivity;
 
+import com.example.fjob.tableDo.CpnViewModel;
 import com.example.fjob.tool.Validator;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
@@ -80,9 +84,6 @@ public class PersonMsgActivity extends BaseActivity {
     List<String>list=new ArrayList<>();
     List<String>listnet=new ArrayList<>();
     List<String>listcpnimg=new ArrayList<>();
-//    List<CpnMessage>cpnMessageList;
-//LiveData<List<ImguEntity>>liveDataimg;
-//    private String urlint;
 
 //    List<CpnMessage>listcpn;..................................................................
 
@@ -101,15 +102,20 @@ private Context mContext;
 
     private File tempFile = null;
     private Uri uri01;
+    private String fileName;
+    List<CpnMessage>cpnMessageList;
+
+
+    private CpnMessage cpnMessage=new CpnMessage();
+    private CpnViewModel cpnViewModel;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cpn_msg);
         verifyStoragePermissions(this);
-//        imgViewmodel=ViewModelProviders.of(this).get(ImgViewmodel.class);
         userViewmodel= ViewModelProviders.of(this).get(UserViewModel.class);
-//        cpnViewModel=ViewModelProviders.of(this).get(CpnViewModel.class);
         imageView=findViewById(R.id.imageView_pco);
+        cpnViewModel=ViewModelProviders.of(this).get(CpnViewModel.class);
         inoitView();
         initDo();
         livedata();
@@ -123,70 +129,169 @@ private Context mContext;
     }
 
     private void adaptercpn() {
+        cpnMessageList=cpnViewModel.list();
+        if (cpnMessageList.size()!=0){
+            for (CpnMessage cpnMessage:cpnMessageList){
 
+                edName.setText(cpnMessage.getNickname());
+
+                SharedPreferences.Editor editor=getSharedPreferences(TEMP_INFO,Context.MODE_PRIVATE).edit();
+                editor.clear();
+                editor.putString("usn",cpnMessage.getWorkin());
+editor.putString("imgnet",cpnMessage.getIcon());
+                editor.apply();
+                edemail.setText(cpnMessage.getEmail());
+                edphone.setText(cpnMessage.getPhonenumber());
+
+                edaddress.setText(cpnMessage.getAddressp());
+                edshowyouself.setText(cpnMessage.getShowyou());
+                if (cpnMessage.getIcon()!=null){
+                    listcpnimg.add(cpnMessage.getIcon());
+                }
+                Picasso.get().load(ApiRetrofit.URL+cpnMessage.getIcon()).into(imageViewIcon);
+            }}
 
 
     }
 
     private void findself() {
+        liveData=userViewmodel.getAllUsersLive();
+        liveData.observe(this, new Observer<List<LoginUser>>() {
+            @Override
+            public void onChanged(List<LoginUser> loginUsers) {
+                for (LoginUser loginUser:loginUsers){
 
-//        cpnMessageList=cpnViewModel.list();
-//if (cpnMessageList.size()!=0){
-//        for (CpnMessage cpnMessage:cpnMessageList){
-//
-//            edName.setText(cpnMessage.getNickname());
-//
-//            SharedPreferences.Editor editor=getSharedPreferences(TEMP_INFO,Context.MODE_PRIVATE).edit();
-//            editor.clear();
-//            editor.putString("usn",cpnMessage.getWorkin());
-//
-//            editor.apply();
-//            edemail.setText(cpnMessage.getEmail());
-//            edphone.setText(cpnMessage.getPhonenumber());
-//
-//            edaddress.setText(cpnMessage.getAddressp());
-//            edshowyouself.setText(cpnMessage.getShowyou());
-//            if (cpnMessage.getIcon()!=null){
-//                listcpnimg.add(cpnMessage.getIcon());
-//            }
-//            Picasso.get().load(ApiRetrofit.URL+cpnMessage.getIcon()).into(imageViewIcon);
-//        }}
+                    SharedPreferences.Editor editor=getSharedPreferences(TEMP_INFO,Context.MODE_PRIVATE).edit();
+                    editor.clear();
+                    list.add(loginUser.getUserId());
+                    editor.putString("username",loginUser.getUserId());
+                    editor.apply();
+
+                }
+            }
+        });
+
+
+
     }
 
     private void getintent() {
 
-//liveDataimg=imgViewmodel.list();
-//liveDataimg.observe(this, new Observer<List<ImguEntity>>() {
-//    @Override
-//    public void onChanged(List<ImguEntity> imguEntities) {
-//        for (ImguEntity imguEntity:imguEntities){
-//            if (imguEntity.getUsername()!=null){
-//                SharedPreferences.Editor editor=getSharedPreferences(TEMP_INFO,Context.MODE_PRIVATE).edit();
-//                editor.clear();
-//                editor.putString("urlint",imguEntity.getUsername());
-//                if (imguEntity.getUsername()!=null){
-//                    listnet.add(imguEntity.getUsername());
-//                }
-//                editor.apply();
-//
-//    Picasso.get().load(ApiRetrofit.URL+imguEntity.getUsername()).into(imageViewIcon);
-//
-//
-//            }
-//
-//        }
-//    }
-//});
+
 
 
     }
 
-    //编辑头像
+    //提交信息
     public void onclickedimg(View view){
-//        Intent intent=new Intent(CpnMsgActivity.this, PhotoActivity.class);
+
+
+
+
+
+
+        sp=getSharedPreferences(TEMP_INFO,Context.MODE_PRIVATE);
+
+        if (sp.getString("img","")==null&&sp.getString("imgnet","")==null){
+            Toast.makeText(getApplicationContext(), "请上传头像", Toast.LENGTH_SHORT).show();
+
+        }else {
+            SharedPreferences.Editor editor = getSharedPreferences(TEMP_INFO, Context.MODE_PRIVATE).edit();
+//            editor.clear();
+//            editor.putString("edName", edName.getText().toString());
+//            if (Validator.isEMAIN(edemail.getText().toString())){
 //
-//        startActivity(intent);
-//CpnMsgActivity.this.finish();
+//
+//            }else {
+//                edemail.setError("格式不正确");
+//                edemail.requestFocus();
+//                return;
+//            }
+
+//            if (Validator.isMobileNumber(edphone.getText().toString())){
+////                        editor.putString("edphone", edphone.getText().toString());
+//
+//            }else {
+//                edphone.setError("号码格式不正确");
+//                edphone.requestFocus();
+//                return;
+//            }
+
+
+
+            cpnMessage.setAddressp(edaddress.getText().toString());
+//
+
+
+
+                cpnMessage.setIcon(sp.getString("img",""));
+
+
+            cpnMessage.setEmail( edemail.getText().toString());
+            cpnMessage.setNickname(edName.getText().toString());
+            cpnMessage.setPhonenumber(edphone.getText().toString());
+            cpnMessage.setShowyou(edshowyouself.getText().toString());
+            cpnMessage.setWorkin(list.get(0));
+            cpnMessage.setUsername(list.get(0));
+
+
+            //广播
+            Intent intent = new Intent();
+            intent.setAction("android.intent.action.ACTION_FASONG");//用隐式意图来启动广播
+            intent.putExtra("username", cpnMessage.getNickname());
+            intent.putExtra("url", cpnMessage.getIcon());
+            intent.putExtra("phone",cpnMessage.getPhonenumber());
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+
+
+
+
+
+            cpnViewModel.deleteall();
+
+            cpnViewModel.insert(cpnMessage);
+            Gson gson = new Gson();
+            String jsonstr = gson.toJson(cpnMessage);
+            final RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonstr);
+            Call<CpnMessage>task=Common.apicommont.addcpn(requestBody);
+            task.enqueue(new Callback<CpnMessage>() {
+                @Override
+                public void onResponse(Call<CpnMessage> call, Response<CpnMessage> response) {
+
+
+
+                    Toast.makeText(getApplicationContext(), "保存成功", Toast.LENGTH_SHORT).show();
+
+                    PersonMsgActivity.this.finish();
+                }
+
+                @Override
+                public void onFailure(Call<CpnMessage> call, Throwable t) {
+                    Toast.makeText(getApplicationContext(), t.toString(), Toast.LENGTH_SHORT).show();
+                }
+            });
+
+
+
+
+
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     }
     private void livedata() {
@@ -208,7 +313,6 @@ private Context mContext;
                     SharedPreferences.Editor editor=getSharedPreferences(TEMP_INFO,Context.MODE_PRIVATE).edit();
                     editor.clear();
                     list.add(loginUser.getUserId());
-
                     editor.putString("username",loginUser.getUserId());
                     editor.apply();
 
@@ -220,14 +324,9 @@ private Context mContext;
     private void inoitView() {
         edName = findViewById(R.id.edit_res_name);
         edaddress = findViewById(R.id.edit_res_burth);
-
         edemail = findViewById(R.id.edit_res_e_mail);
         edphone = findViewById(R.id.edit_res_telphone);
-
-
         edshowyouself = findViewById(R.id.edit_show_you);
-
-
         confirm = findViewById(R.id.button_res_confirm);
         imageViewIcon=findViewById(R.id.imageView_pco);
 
@@ -238,97 +337,6 @@ private Context mContext;
 
     private void initDo() {
 //
-//        confirm.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//sp=getSharedPreferences(TEMP_INFO,Context.MODE_PRIVATE);
-//String uu=sp.getString("urlint","");
-//                if (url==null&&uu==null){
-//                    Toast.makeText(getApplicationContext(), "请上传头像", Toast.LENGTH_SHORT).show();
-//
-//                }else {
-//                SharedPreferences.Editor editor = getSharedPreferences(TEMP_INFO, Context.MODE_PRIVATE).edit();
-//                editor.clear();
-//                editor.putString("edName", edName.getText().toString());
-//if (Validator.isEMAIN(edemail.getText().toString())){
-////    editor.putString("edemail", edemail.getText().toString());
-//
-//}else {
-//    edemail.setError("格式不正确");
-//    edemail.requestFocus();
-//    return;
-//}
-//
-//                    if (Validator.isMobileNumber(edphone.getText().toString())){
-////                        editor.putString("edphone", edphone.getText().toString());
-//
-//                    }else {
-//                        edphone.setError("号码格式不正确");
-//                        edphone.requestFocus();
-//                        return;
-//                    }
-//
-//
-//
-//                cpnMessage.setAddressp(edaddress.getText().toString());
-////
-//                    if (listnet.size()!=0){
-//                        cpnMessage.setIcon(listnet.get(0));
-//                    }else {
-//                        cpnMessage.setIcon(listcpnimg.get(0));
-//                    }
-//
-//                cpnMessage.setEmail( edemail.getText().toString());
-//                cpnMessage.setNickname(edName.getText().toString());
-//                cpnMessage.setPhonenumber(edphone.getText().toString());
-//                cpnMessage.setShowyou(edshowyouself.getText().toString());
-//                cpnMessage.setWorkin(list.get(0));
-//                cpnMessage.setUsername(list.get(0));
-//
-//
-//             //广播
-//                    Intent intent = new Intent();
-//                    intent.setAction("android.intent.action.ACTION_FASONG");//用隐式意图来启动广播
-//                    intent.putExtra("username", cpnMessage.getNickname());
-//                    intent.putExtra("url", cpnMessage.getIcon());
-//                    intent.putExtra("phone",cpnMessage.getPhonenumber());
-//                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-//
-//
-//
-//
-//
-//                    cpnViewModel.deleteall();
-//
-//                    cpnViewModel.insert(cpnMessage);
-//                Gson gson = new Gson();
-//                String jsonstr = gson.toJson(cpnMessage);
-//                final RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonstr);
-//                Call<CpnMessage>task=Common.apicommont.addcpn(requestBody);
-//                task.enqueue(new Callback<CpnMessage>() {
-//                    @Override
-//                    public void onResponse(Call<CpnMessage> call, Response<CpnMessage> response) {
-//
-//                      System.out.println("插入-------------"+cpnViewModel.list());
-//
-//                        Toast.makeText(getApplicationContext(), "保存成功", Toast.LENGTH_SHORT).show();
-//
-//                            CpnMsgActivity.this.finish();
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<CpnMessage> call, Throwable t) {
-//                        Toast.makeText(getApplicationContext(), t.toString(), Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//
-//
-//
-//
-//
-//
-//            }}
-//        });
     }
 //    popuwindow......................................
 //    ............................
@@ -395,7 +403,7 @@ private Context mContext;
         });
     }
     public void seletephoto(View view){
-//        toCamera();
+
         initPopWindow(view);
 
     }
@@ -410,6 +418,11 @@ private Context mContext;
     }
 
 
+
+
+
+
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         //判断返回码不等于0
@@ -418,11 +431,11 @@ private Context mContext;
             //读取返回码
             switch (requestCode) {
                 case 100:   //相册返回的数据（相册的返回码）
-
+                    listall.clear();
                     uri01=data.getData();
+                    listall.add(uri01.toString());
 
-
-
+                    System.out.println("------------------");
                     String[] arr={MediaStore.Images.Media.DATA};
                     Cursor cursor=managedQuery(uri01,arr,null,null,null);
                     int img_index=cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
@@ -432,17 +445,17 @@ private Context mContext;
                     String a=arr[0];
                     String x=cursor.getString(cursor.getColumnIndex(a));
                     File tempFile =new File(x.trim());
-                    String fileName=tempFile.getName();
+                    fileName = tempFile.getName();
 
-                    list.add(fileName);
+                    listall.add(fileName);
 
 
                     File file=new File(pa);
-
+                    listall.add(pa);
 
                     ContentResolver contentResolver=this.getContentResolver();
                     try {
-                        Bitmap bitmap= BitmapFactory.decodeStream(contentResolver.openInputStream(uri01));
+                        Bitmap bitmap=BitmapFactory.decodeStream(contentResolver.openInputStream(uri01));
 
 
 
@@ -451,10 +464,37 @@ private Context mContext;
                         e.printStackTrace();
                     }
 
+                    sp=getSharedPreferences(TEMP_INFO, Context.MODE_PRIVATE);
+                    String  usn=sp.getString("username","");
 
+
+
+                    File files=new File(pa);
+                    Map<String,String>params12=new HashMap<>();
+                    params12.put("description",usn);
 
 //.......................................
+                    RequestBody body=RequestBody.create(MediaType.parse("image/jpeg"),files);
 
+                    MultipartBody.Part part=MultipartBody.Part.createFormData("files", fileName,body);
+
+                   Call<RegisterEntity>task=Common.apicommont.load(part,params12);
+                   task.enqueue(new Callback<RegisterEntity>() {
+                       @Override
+                       public void onResponse(Call<RegisterEntity> call, Response<RegisterEntity> response) {
+                           RegisterEntity registerEntity=response.body();
+
+                           SharedPreferences.Editor editor=getSharedPreferences(TEMP_INFO,Context.MODE_PRIVATE).edit();
+editor.putString("img",registerEntity.getUsername());
+editor.apply();
+                           System.out.println("返回的照片------------------"+registerEntity.getUsername());
+                       }
+
+                       @Override
+                       public void onFailure(Call<RegisterEntity> call, Throwable t) {
+
+                       }
+                   });
 //......................
 
 
@@ -462,11 +502,13 @@ private Context mContext;
 
                     break;
                 case 101:  //相机返回的数据（相机的返回码）
-
+                    listall.clear();
                     try {
                         tempFile = new File(Environment.getExternalStorageDirectory(), "fileImg.jpg");  //相机取图片数据文件
                         Uri uri02 = Uri.fromFile(tempFile);   //图片文件
-
+                        listall.add(uri02.toString());
+                        listall.add(tempFile.getName());
+                        System.out.println("----"+tempFile.getName());
                         Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri02));
                         imageView.setImageBitmap(bitmap);
                     } catch (IOException e) {
@@ -476,6 +518,7 @@ private Context mContext;
             }
         }
     }
+
     //跳转相册
     private void toPicture() {
         Intent intent = new Intent(Intent.ACTION_PICK);  //跳转到 ACTION_IMAGE_CAPTURE

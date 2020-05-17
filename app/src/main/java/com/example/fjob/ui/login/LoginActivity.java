@@ -19,11 +19,13 @@ import android.widget.Toast;
 
 import com.example.fjob.Entity.RegisterEntity;
 import com.example.fjob.Entity.job.JobResultEntity;
+import com.example.fjob.Entity.usermessage.CpnMessage;
 import com.example.fjob.JobViewModel;
 import com.example.fjob.R;
 import com.example.fjob.UserViewModel;
 import com.example.fjob.common.Common;
 import com.example.fjob.data.model.LoginUser;
+import com.example.fjob.tableDo.CpnViewModel;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -47,9 +49,9 @@ public class LoginActivity extends AppCompatActivity {
     private Button buttonConfirm,buttonRegister;
     private TextView textViewAccount,textViewPassword,forgetpsw;
     private List<JobResultEntity.DataBean> data=new ArrayList<>();
+private CpnViewModel cpnViewModel;
 
-
-
+List<CpnMessage>listcpn;
 
     LiveData<List<LoginUser>>loginUserLiveData;
 
@@ -64,7 +66,7 @@ public class LoginActivity extends AppCompatActivity {
         doview();
         userViewModel=ViewModelProviders.of(this).get(UserViewModel.class);
         jobViewModel=ViewModelProviders.of(this).get(JobViewModel.class);
-
+cpnViewModel=ViewModelProviders.of(this).get(CpnViewModel.class);
         //记住密码
         final SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
         boolean isRemember = preference.getBoolean(REMEMBER_PWD_PREF, false);
@@ -117,7 +119,35 @@ public class LoginActivity extends AppCompatActivity {
 
 
 
+                cpnViewModel.deleteall();
 
+                //寻找公司
+                CpnMessage c=new CpnMessage();
+                c.setWorkin(account);
+                Gson gson2=new Gson();
+                String json=gson2.toJson(c);
+                final RequestBody requestBody3=RequestBody.create(MediaType.parse("application/json; charset=utf-8"),json);
+                Call<List<CpnMessage>>task1=Common.apicommont.findcpn(requestBody3);
+                task1.enqueue(new Callback<List<CpnMessage>>() {
+                    @Override
+                    public void onResponse(Call<List<CpnMessage>> call, Response<List<CpnMessage>> response) {
+                        listcpn=response.body();
+
+
+                        for (CpnMessage cpnMessage:listcpn){
+                            cpnViewModel.insert(cpnMessage);
+
+
+
+                        }
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<CpnMessage>> call, Throwable t) {
+
+                    }
+                });
 
 
 //登陆操作
@@ -137,7 +167,6 @@ public class LoginActivity extends AppCompatActivity {
                         if (response.body().getUsername().equals("1")){
                             Toast.makeText(getApplicationContext(),"登陆成功",Toast.LENGTH_SHORT).show();
                             userViewModel.deleteAllUsers();
-
                             userViewModel.insertUsers(loginUser);
 
 
