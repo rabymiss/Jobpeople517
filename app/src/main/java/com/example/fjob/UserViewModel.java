@@ -27,7 +27,7 @@ public class UserViewModel  extends AndroidViewModel {
     }
 
     public LiveData<List<LoginUser>> findAllUserLive(String pattern) { return userRepository.findAllUserLive(pattern);}
-    LiveData<List<LoginUser>>getAllUsersLive(){ return userRepository.getAllUsersLive();};
+  public   LiveData<List<LoginUser>>getAllUsersLive(){ return userRepository.getAllUsersLive();};
 
     public void insertUsers(LoginUser...loginUsers) { userRepository.insertUsers(loginUsers); }
    public void deleteUsers(LoginUser... loginUsers) {

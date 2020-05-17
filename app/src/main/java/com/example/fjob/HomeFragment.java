@@ -123,6 +123,8 @@ refresh();
         refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                jobViewModel.deleteAllJobs();
+                myAdapter.notifyDataSetChanged();
                 Call<JobResultEntity> task= Common.apicommont.getJson();
             task.enqueue(new Callback<JobResultEntity>() {
                 @Override
@@ -131,7 +133,7 @@ refresh();
                     if (response.code()== HttpsURLConnection.HTTP_OK){
                         Log.d(TAG,"成功"+response.body());
                         JobResultEntity jobResultEntity=response.body();
-
+                     data2.clear();
                         data2.addAll(jobResultEntity.getData());
 
 
@@ -143,7 +145,7 @@ refresh();
                                     ,dataBean.getJobPay()
                                     ,dataBean.getCpnName(),dataBean.getUuid(),dataBean.getUsername(),dataBean.getImage());
                             jobViewModel.insertJobs(jobMessage);
-                            myAdapter.notifyDataSetChanged();
+
                         }
      refresh.setRefreshing(false);
 
@@ -252,71 +254,7 @@ refresh();
 //        });
 //    }
 
-//    @Override
-//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-//        switch (item.getItemId()) {
-//
-//            case R.id.search_menu_job:
-//                Intent intent=new Intent(requireActivity(), AddJobActivity.class);
-//                startActivity(intent);
-//                break;
-//
-//            case R.id.menu_bar_refresh_job:
 
-//                jobViewModel.deleteAllJobs();
-//                myAdapter.notifyDataSetChanged();
-////加载招聘信息
-//
-//
-//            Call<JobResultEntity> task= Common.apicommont.getJson();
-//            task.enqueue(new Callback<JobResultEntity>() {
-//                @Override
-//                public void onResponse(Call<JobResultEntity> call, Response<JobResultEntity> response) {
-//                    //  Log.d(TAG,"Json-->"+response.code());
-//
-//
-//                    if (response.code()== HttpsURLConnection.HTTP_OK){
-//                        Log.d(TAG,"成功"+response.body());
-//                        JobResultEntity jobResultEntity=response.body();
-//
-//                        data2.addAll(jobResultEntity.getData());
-//
-//
-//                        for (  JobResultEntity.DataBean dataBean:data2  ){
-//
-//                            JobMessage jobMessage=new JobMessage(dataBean.getJobConditionOne()
-//                                    ,dataBean.getJobConditionTwo()
-//                                    ,dataBean.getJobName()
-//                                    ,dataBean.getJobPay()
-//                                    ,dataBean.getCpnName());
-//                            Log.d(TAG,"data------------------------------"+jobMessage.getCpnName());
-//
-//                            jobViewModel.insertJobs(jobMessage);
-//                            myAdapter.notifyDataSetChanged();
-//                        }
-//
-//                        Log.d(TAG,"data------------------------------"+data);
-//
-//                    }
-//
-//                }
-//
-//                @Override
-//                public void onFailure(Call<JobResultEntity> call, Throwable t) {
-//                    Log.d(TAG,"失败-->"+t.toString());
-//                    Toast.makeText(requireActivity(),t.toString(),Toast.LENGTH_SHORT).show();
-//                }
-//            });
-//
-//
-//
-//                //..................
-//
-//                break;
-//                default:
-
-//      return super.onOptionsItemSelected(item);
-//    }
 
 //..................................................................
 

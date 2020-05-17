@@ -74,4 +74,8 @@
     <string name="forget_password" >忘记密码</string>
     <string name="msg_code" >获取验证码</string>
 
+    <string name="cpn_message">详细信息</string>
+    <string name="person_icon">点击编辑头像</string>
+    <string name="person_confirm">提交</string>
+
 </resources>

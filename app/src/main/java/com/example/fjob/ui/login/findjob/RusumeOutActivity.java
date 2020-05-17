@@ -11,17 +11,32 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.alibaba.fastjson.JSON;
+import com.example.fjob.Api.entity.JobAll;
+import com.example.fjob.Api.entity.Resume;
 import com.example.fjob.Entity.job.ResumeEntity;
 import com.example.fjob.Fragmen.ui.JobMessageFragment;
 import com.example.fjob.R;
+import com.example.fjob.UserViewModel;
+import com.example.fjob.common.Common;
+import com.example.fjob.data.model.LoginUser;
 import com.example.fjob.ui.login.ButtomActivity;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.List;
+
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class RusumeOutActivity extends AppCompatActivity {
     private EditText edName,edBurth,edpolitics,edemail,edphone,edaddress,edmary;
@@ -31,12 +46,43 @@ public class RusumeOutActivity extends AppCompatActivity {
 private Socket socket;
     private SharedPreferences sp;
     private static final String TEMP_INFO="temp_info";
+    private String uuid;
+    private String cpnid;
+private UserViewModel userViewModel;
+    private String username;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rusume_out);
+        userViewModel= ViewModelProviders.of(this).get(UserViewModel.class);
         initView();
         initDo();
+        getintent();
+
+    }
+
+    private void getintent() {
+
+        LiveData<List<LoginUser>>listLiveData=userViewModel.getAllUsersLive();
+        listLiveData.observe(this, new Observer<List<LoginUser>>() {
+            @Override
+            public void onChanged(List<LoginUser> loginUsers) {
+                for (LoginUser loginUser:loginUsers){
+
+                    username = loginUser.getUserId();
+                }
+            }
+        });
+
+
+
+
+        Intent intent=getIntent();
+        uuid = intent.getStringExtra("uuid");
+        cpnid = intent.getStringExtra("cpnid");
+
+
     }
 
     private void initDo() {
@@ -60,11 +106,11 @@ private Socket socket;
 
 
                 editor.commit();
-                ResumeEntity resumeEntity=new ResumeEntity();
-                resumeEntity.setAddressWork(edaddress.getText().toString());
+                Resume resumeEntity=new Resume();
+                resumeEntity.setAddresswork(edaddress.getText().toString());
                 resumeEntity.setBirthday(edBurth.getText().toString());
                 resumeEntity.setEmail(edemail.getText().toString());
-                resumeEntity.setIfMary(edmary.getText().toString());
+                resumeEntity.setIfmary(edmary.getText().toString());
                 resumeEntity.setWorkming(edworkming.getText().toString());
 
                 resumeEntity.setPhone(edphone.getText().toString());
@@ -74,32 +120,30 @@ private Socket socket;
                 resumeEntity.setTeached(deteached.getText().toString());
 
                 resumeEntity.setYouname(edName.getText().toString());
+                resumeEntity.setUuid(uuid);
+                resumeEntity.setCpnid(cpnid);
+                resumeEntity.setT1(username);
                 String msg= JSON.toJSONString(resumeEntity);
 //发送简历
-                Log.d("Json","===================>"+msg);
-                new Thread(new Runnable() {
+                final RequestBody requestBody=RequestBody.create(MediaType.parse("application/json; charset=utf-8"),msg);
+
+                Call<JobAll>task= Common.apicommont.sqveresume(requestBody);
+                task.enqueue(new Callback<JobAll>() {
                     @Override
-                    public void run() {
-
-
-                        try {
-                            socket=new Socket("172.20.10.3",8081);
-                            out=new DataOutputStream(socket.getOutputStream());
-                            out.writeUTF(msg);
-                            Log.d("OUT","===================>"+msg);
-
-                            Toast.makeText(getApplicationContext(),"发送成功",Toast.LENGTH_LONG).show();
-
-
-
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
+                    public void onResponse(Call<JobAll> call, Response<JobAll> response) {
 
                     }
-                }).start();
+
+                    @Override
+                    public void onFailure(Call<JobAll> call, Throwable t) {
+
+                    }
+                });
+
+
+
+
+
 
 
             }

@@ -40,5 +40,6 @@ public interface Api {
     //寻找工作详情
     @POST("find/message/byid")
     Call<JobAll> adapterjobbyid(@Body RequestBody requestBody);
-
+    @POST("save/resume")
+    Call<JobAll> sqveresume(@Body RequestBody requestBody);
 }

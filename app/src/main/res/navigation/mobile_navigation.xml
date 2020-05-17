@@ -27,7 +27,7 @@
 
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="com.example.fjob.Fragmen.ui.NotificationsFragment"
+        android:name="com.example.fjob.Fragmen.ui.MyFragment"
         android:label="@string/my"
         tools:layout="@layout/fragment_notifications" />
 </navigation>

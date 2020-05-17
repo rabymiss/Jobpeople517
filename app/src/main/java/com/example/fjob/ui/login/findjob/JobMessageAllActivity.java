@@ -54,7 +54,7 @@ private ImageView icon;
 private List<JobAll.DataBean>data3=new ArrayList<>();
    private  LiveData<List<JobMessageAll> >cpnNameList;
     private MsgViewModel msgViewModel;
-
+    private List<String>stringList=new ArrayList<>();
 //发送简历
 private Button button,button2;
 
@@ -71,7 +71,7 @@ private Button button,button2;
         //发送部件
         jobViewModel=ViewModelProviders.of(this).get(JobViewModel.class);
         msgViewModel=ViewModelProviders.of(this).get(MsgViewModel.class);
-
+stringList.clear();
       findCpn();
 
 
@@ -82,64 +82,6 @@ private Button button,button2;
         buttonchact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
-                //...........................下载Amsgs
-
-
-//
-//            Call<ReturnJobMessageAll> task= Common.apicommont.findMsgsAll();
-//            task.enqueue(new Callback<ReturnJobMessageAll>() {
-//                @Override
-//                public void onResponse(Call<ReturnJobMessageAll> call, Response<ReturnJobMessageAll> response) {
-//                 Log.d(TAG,"Json-->"+response.code());
-//
-//
-//                    if (response.code()== HttpsURLConnection.HTTP_OK){
-//                        Log.d(TAG,"成功"+response.body());
-//
-//                        ReturnJobMessageAll returnJobMessageAll=response.body();
-//                   data.addAll(returnJobMessageAll.getData());
-//
-//
-//                    for (  ReturnJobMessageAll.DataBean dataBean:data   ){
-//
-//                        JobMessageAll jobMessageAll=new JobMessageAll(dataBean.getJobName()
-//                        ,dataBean.getCpnAddress()
-//                        ,dataBean.getGood1()
-//                        ,dataBean.getGood2()
-//                        ,dataBean.getGood3()
-//                        ,dataBean.getGood4()
-//                        ,dataBean.getJobPay()
-//                        ,dataBean.getConditionOne()
-//                        ,dataBean.getConditionTwo()
-//                        ,dataBean.getCondition3()
-//                        ,dataBean.getWorkContent()
-//                        ,dataBean.getWorkContentShow()
-//                        ,dataBean.getWorkAddress()
-//                        ,dataBean.getCpnImage()
-//                        ,dataBean.getCpnName()
-//                        ,dataBean.getDizhi());
-////
-//                  // Log.d(TAG,"公司名字------------------------------"+dataBean.getCpnName());
-//                                   msgViewModel.insertMsgs(jobMessageAll);
-//                        Log.d(TAG,"公司名字------------------------------"+jobMessageAll.getCpnName1());
-//                    }
-//
-//                        Log.d(TAG,"data-------------"+data);
-//
-//                    }
-//                }
-//
-//                @Override
-//                public void onFailure(Call<ReturnJobMessageAll> call, Throwable t) {
-//                    Log.d(TAG,"失败-->"+t.toString());
-//                }
-//            });
-//
-//
-//
-//
             }
         });
                    //投递简历
@@ -149,6 +91,8 @@ private Button button,button2;
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(JobMessageAllActivity.this, RusumeOutActivity.class);
+       intent.putExtra("uuid",stringList.get(0));
+       intent.putExtra("cpnid",stringList.get(1));
                 startActivity(intent);
 
 
@@ -158,7 +102,7 @@ private Button button,button2;
     }
 //匹配公司
     private void findCpn() {
-icon=findViewById(R.id.imageView_show_cpn);
+        icon=findViewById(R.id.imageView_show_cpn);
         textViewjobname=findViewById(R.id.show_jobname);
         condition1=findViewById(R.id.show_content1);
         condition2=findViewById(R.id.show_content2);
@@ -194,6 +138,9 @@ icon=findViewById(R.id.imageView_show_cpn);
                     cpnaddress.setText(gt.getDizhi());
                     conditon3.setText(gt.getCondition3());
                     Picasso.get().load(ApiRetrofit.URL+gt.getCpnImage()).into(icon);
+                    stringList.add(gt.getGood1());
+                    stringList.add(gt.getGood2());
+
                 }
 
 
@@ -205,57 +152,6 @@ icon=findViewById(R.id.imageView_show_cpn);
             }
         });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-////        cpnNameList=msgViewModel.findMsgsWithPattern(cpn);
-//      ;//解析获得的搜索数据
-//        cpnNameList.observe(this, new Observer<List<JobMessageAll>>() {
-//            @Override
-//            public void onChanged(List<JobMessageAll> jobMessageAlls) {
-//                Log.d(TAG,"----------------------------"+jobMessageAlls);
-//                      for (JobMessageAll jobMessageAll:jobMessageAlls){
-//
-//                          JobMessageAll jobMessageAll1=new JobMessageAll(jobMessageAll.getJobName()
-//                                  ,jobMessageAll.getCpnAddress()
-//                                  ,jobMessageAll.getGood1()
-//                                  ,jobMessageAll.getGood2()
-//                                  ,jobMessageAll.getGood3()
-//                                  ,jobMessageAll.getGood4()
-//                                  ,jobMessageAll.getJobPay()
-//                                  ,jobMessageAll.getConditionOne()
-//                                  ,jobMessageAll.getConditionTwo()
-//                                  ,jobMessageAll.getCondition3()
-//                                  ,jobMessageAll.getWorkContent()
-//                                  ,jobMessageAll.getWorkContentShow()
-//                                  ,jobMessageAll.getWorkAddress()
-//                                  ,jobMessageAll.getCpnImage()
-//                                  ,jobMessageAll.getCpnName1()
-//                                  ,jobMessageAll.getDizhi());
-//
-//                          textViewjobname.setText(jobMessageAll1.getJobName());
-//                          condition2.setText(jobMessageAll1.getConditionTwo());
-//                          jobpay.setText(jobMessageAll1.getJobPay());
-//                          workshow.setText(jobMessageAll1.getWorkContentShow());
-//                          cpnname.setText(jobMessageAll1.getCpnName1());
-//                          cpnaddress.setText(jobMessageAll1.getCpnAddress());
-//                          conditon3.setText(jobMessageAll1.getCondition3());
-//
-//
-//                      }
-//
-//            }
-//        });
 
     }
 }
